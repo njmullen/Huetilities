@@ -71,11 +71,6 @@ public class LoadScenes implements Serializable {
                 scenes.add(scene);
                 loadStream.close();
             }
-            
-            for(int i = 0; i < scenes.size(); i++){
-                System.out.println(scenes.get(i).getName());
-            }
-            
         } catch (FileNotFoundException e){
             //
         } catch (IOException ex){
@@ -88,7 +83,9 @@ public class LoadScenes implements Serializable {
     }
     
     public static void deleteScene(HueScene sceneToDelete){
-        
+        String sceneName = sceneToDelete.getName();
+        File file = new File(System.getProperty("user.home") + "/Library/Application Support/Huetilities/Scenes/" + sceneName + ".ser");
+        file.delete();
     }
     
     public static ArrayList<HueScene> getScenes(){
