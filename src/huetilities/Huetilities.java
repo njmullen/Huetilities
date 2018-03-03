@@ -27,8 +27,8 @@ package huetilities;
 public class Huetilities {
 
     public static void main(String[] args) {
-        //HuetilitiesInitializer hi = new HuetilitiesInitializer();
-        SystemTrayMenu stm = new SystemTrayMenu();
+        HuetilitiesInitializer hi = new HuetilitiesInitializer();
+        //SystemTrayMenu stm = new SystemTrayMenu();
     }
     
 }

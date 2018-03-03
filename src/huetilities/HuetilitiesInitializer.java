@@ -58,6 +58,7 @@ public final class HuetilitiesInitializer {
                 ex.printStackTrace();
             }
             
+            SystemTrayMenu stm = new SystemTrayMenu(sdk);
             //Add light controller initialization and open app
         //Open connection GUI
         } else {
@@ -107,6 +108,8 @@ public final class HuetilitiesInitializer {
             sdk.setSelectedBridge(phb);
             sdk.enableHeartbeat(phb, PHHueSDK.HB_INTERVAL);
             String lastIpAddress = phb.getResourceCache().getBridgeConfiguration().getIpAddress();  
+            
+            System.err.println("CONNECTED");
             
             HuetilitiesProperties.storeUsername(username);
             HuetilitiesProperties.storeLastIPAddress(lastIpAddress);

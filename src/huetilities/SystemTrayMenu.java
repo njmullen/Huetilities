@@ -25,6 +25,11 @@ package huetilities;
 
 //Main menu for system tray
 
+import com.philips.lighting.hue.sdk.PHHueSDK;
+import com.philips.lighting.model.PHBridge;
+import com.philips.lighting.model.PHBridgeResourcesCache;
+import com.philips.lighting.model.PHLight;
+import com.philips.lighting.model.PHLightState;
 import java.awt.AWTException;
 import java.awt.Color;
 import java.awt.Image;
@@ -33,16 +38,21 @@ import java.awt.PopupMenu;
 import java.awt.SystemTray;
 import java.awt.TrayIcon;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.IOException;
+import java.util.List;
 import javax.imageio.ImageIO;
 import javax.swing.JColorChooser;
 import javax.swing.JSlider;
 
 public class SystemTrayMenu {
     
-    public SystemTrayMenu(){
+    PHHueSDK sdk;
+    
+    public SystemTrayMenu(PHHueSDK thisSDK){
+        this.sdk = thisSDK;
         //Set tray image
         SystemTray tray = SystemTray.getSystemTray();
         Image trayImage = null;
@@ -68,11 +78,29 @@ public class SystemTrayMenu {
         menu.add(lightsLabel);
        
         //Add submenu for each light
+        PHBridge bridge = sdk.getSelectedBridge();
+        PHBridgeResourcesCache cache = bridge.getResourceCache();
+        List<PHLight> lights = cache.getAllLights();
+        for(int i = 0; i < lights.size(); i++){
+            MenuItem lightLabel = new MenuItem(lights.get(i).getName());
+            PHLight light = lights.get(i);
+            PHLightState lightState = light.getLastKnownLightState();
+            lightLabel.addActionListener((ActionEvent e) -> {
+                if(lightState.isOn()){
+                    lightState.setOn(false);
+                    bridge.updateLightState(light, lightState);
+                } else {
+                    lightState.setOn(true);
+                    bridge.updateLightState(light, lightState);
+                }
+            });
+            menu.add(lightLabel);
+        }
         menu.addSeparator();
         
         MenuItem changeLights = new MenuItem("Change Lights Color/Brightness");
         changeLights.addActionListener((ActionEvent e) -> {
-            //
+            LightSettings ls = new LightSettings();
         });
         menu.add(changeLights);
         
@@ -92,13 +120,13 @@ public class SystemTrayMenu {
         
         MenuItem saveScene = new MenuItem("Save Scene");
         saveScene.addActionListener((ActionEvent e) -> {
-            LightSettings ls = new LightSettings();
+            //
         });
         menu.add(saveScene);
                 
         MenuItem randomLights = new MenuItem("Random Scene");
         randomLights.addActionListener((ActionEvent e) -> {
-            //
+            RandomLights rl = new RandomLights(sdk);
         });
         menu.add(randomLights);
         menu.addSeparator();
