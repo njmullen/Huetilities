@@ -21,6 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
 package huetilities;
 
 import com.philips.lighting.hue.sdk.PHHueSDK;
@@ -28,8 +29,6 @@ import com.philips.lighting.model.PHBridge;
 import com.philips.lighting.model.PHBridgeResourcesCache;
 import com.philips.lighting.model.PHLight;
 import com.philips.lighting.model.PHLightState;
-import java.awt.Color;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
@@ -42,7 +41,7 @@ public class RandomLights {
         PHBridge bridge = sdk.getSelectedBridge();
         PHBridgeResourcesCache cache = bridge.getResourceCache();
         List<PHLight> lights = cache.getAllLights();
-        
+
         //Generate x random colors
         for (int i = 0; i < lights.size(); i++) {
             Random rand = new Random();

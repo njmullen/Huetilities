@@ -5,8 +5,11 @@
         <group>
             <file>file:/Users/nick/NetBeansProjects/Huetilities/src/huetilities/LightSettings.java</file>
             <file>file:/Users/nick/NetBeansProjects/Huetilities/src/huetilities/SystemTrayMenu.java</file>
+            <file>file:/Users/nick/NetBeansProjects/Huetilities/src/huetilities/LoadScenes.java</file>
             <file>file:/Users/nick/NetBeansProjects/Huetilities/src/huetilities/HuetilitiesInitializer.java</file>
             <file>file:/Users/nick/NetBeansProjects/Huetilities/src/huetilities/Huetilities.java</file>
+            <file>file:/Users/nick/NetBeansProjects/Huetilities/src/huetilities/RandomLights.java</file>
+            <file>file:/Users/nick/NetBeansProjects/Huetilities/src/huetilities/HueScene.java</file>
         </group>
     </open-files>
 </project-private>
