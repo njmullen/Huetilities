@@ -34,10 +34,19 @@ import com.philips.lighting.model.PHBridgeResourcesCache;
 import com.philips.lighting.model.PHHueError;
 import com.philips.lighting.model.PHHueParsingError;
 import com.philips.lighting.model.PHLight;
+import java.awt.Color;
+import java.awt.Image;
 import java.awt.SystemTray;
 import java.awt.event.WindowEvent;
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 
 // Initializes the SDK and neccesary components for controlling the HUE lights and connects
 // to a bridge if a bridge connection is not yet found
@@ -45,6 +54,8 @@ import java.util.concurrent.TimeUnit;
 public final class HuetilitiesInitializer {
     
     PHHueSDK sdk = PHHueSDK.create();
+    JFrame connectionFrame;
+    JPanel connectionPanel;
     
     public HuetilitiesInitializer(){
         //If the user has never used MovieHue before, open connection GUI to connect to a bridge
@@ -62,7 +73,35 @@ public final class HuetilitiesInitializer {
             //Add light controller initialization and open app
         //Open connection GUI
         } else {
+            connectionFrame = new JFrame("Huetiltiies");
+            connectionFrame.setSize(500, 300);
+            connectionPanel = new JPanel();
+            connectionPanel.setBackground(Color.WHITE);
             
+            //Main logo
+            JLabel movieHueLogo = new JLabel();
+            Image movieImage = null;
+            try {
+                movieImage = ImageIO.read(getClass().getResource("Pushlink.png"));
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+            movieImage = movieImage.getScaledInstance(250, 200, Image.SCALE_SMOOTH);
+            ImageIcon movieIcon = new ImageIcon(movieImage);
+            movieHueLogo.setIcon(movieIcon);
+            connectionPanel.add(movieHueLogo);
+            
+            JLabel connectionLabel = new JLabel("Push the button on your HUE bridge now");
+            connectionPanel.add(connectionLabel);
+            
+            JProgressBar progressBar = new JProgressBar();
+            progressBar.setIndeterminate(true);
+            connectionPanel.add(progressBar);
+            
+            findBridges();
+            
+            connectionFrame.add(connectionPanel);
+            connectionFrame.show();
         }
     }
     
@@ -108,18 +147,19 @@ public final class HuetilitiesInitializer {
             sdk.setSelectedBridge(phb);
             sdk.enableHeartbeat(phb, PHHueSDK.HB_INTERVAL);
             String lastIpAddress = phb.getResourceCache().getBridgeConfiguration().getIpAddress();  
-            
-            System.err.println("CONNECTED");
+                        
+            connectionFrame.dispatchEvent(new WindowEvent(connectionFrame, WindowEvent.WINDOW_CLOSING));
             
             HuetilitiesProperties.storeUsername(username);
             HuetilitiesProperties.storeLastIPAddress(lastIpAddress);
             HuetilitiesProperties.saveProperties();
+            
+            SystemTrayMenu stm = new SystemTrayMenu(sdk);
         }
 
         @Override
         public void onAuthenticationRequired(PHAccessPoint phap) {
             sdk.startPushlinkAuthentication(phap);
-            System.err.println("Push the button on your HUE bridge");
         }
 
         @Override
@@ -136,13 +176,10 @@ public final class HuetilitiesInitializer {
         public void onError(int code, String string) {
             switch (code) {
                 case PHHueError.BRIDGE_NOT_RESPONDING:
-                    System.err.println("OnError :: Bridge Not Responding");
                     break;
                 case PHMessageType.PUSHLINK_BUTTON_NOT_PRESSED:
-                    System.out.println("OnError :: Button Not Pressed");
                     break;
                 case PHMessageType.PUSHLINK_AUTHENTICATION_FAILED:
-                    System.err.println("OnError :: Authentication Failed");
                     break;
                 case PHMessageType.BRIDGE_NOT_FOUND:
                     break;
