@@ -32,6 +32,7 @@ import com.philips.lighting.model.PHLight;
 import com.philips.lighting.model.PHLightState;
 import java.awt.AWTException;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.Image;
 import java.awt.MenuItem;
@@ -50,6 +51,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.imageio.ImageIO;
+import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JColorChooser;
@@ -68,6 +70,13 @@ public class SystemTrayMenu {
     PopupMenu sceneMenu;
     MenuItem settings;
     MenuItem exit;
+    boolean isSyncing = false;
+    
+    LightSyncController lc;
+    List<PHLight> offLights;
+    List<PHLight> primaryLights;
+    List<PHLight> accentLights;
+    boolean vibrant;
     
     public SystemTrayMenu(PHHueSDK thisSDK){
         this.sdk = thisSDK;
@@ -90,7 +99,7 @@ public class SystemTrayMenu {
         } catch (AWTException ex) {
             System.err.println("Tray problem");
         }
-        
+
         MenuItem lightsLabel = new MenuItem("Click each light to turn on/off");
         lightsLabel.setEnabled(false);
         menu.add(lightsLabel);
@@ -123,16 +132,38 @@ public class SystemTrayMenu {
         menu.add(changeLights);
         
         menu.addSeparator();
+
+        //Initilaize light controller and load light sync settings
+        LightSyncSettings.loadSettings(sdk);
+        vibrant = LightSyncSettings.getVibrant();
+        offLights = LightSyncSettings.getOffLights();
+        primaryLights = LightSyncSettings.getPrimaryLights();
+        accentLights = LightSyncSettings.getAccentLights();
+        lc = new LightSyncController(sdk);
         
         MenuItem startSync = new MenuItem("Start Light Sync");
         startSync.addActionListener((ActionEvent e) -> {
-            //
+            if(isSyncing){
+                isSyncing = false;
+                startSync.setLabel("Start Light Sync");
+                //Initilaize light controller and load light sync settings
+                LightSyncSettings.loadSettings(sdk);
+                vibrant = LightSyncSettings.getVibrant();
+                offLights = LightSyncSettings.getOffLights();
+                primaryLights = LightSyncSettings.getPrimaryLights();
+                accentLights = LightSyncSettings.getAccentLights();
+                lc.stop();
+            } else {
+                isSyncing = true;
+                startSync.setLabel("Stop Light Sync");
+                lc.start(vibrant, offLights, primaryLights, accentLights);
+            }
         });
         menu.add(startSync);
         
         MenuItem syncSettings = new MenuItem("Light Sync Settings");
         syncSettings.addActionListener((ActionEvent e) -> {
-            //
+            LightSyncSettingsFrame lsf = new LightSyncSettingsFrame(lc, sdk, isSyncing);
         });
         menu.add(syncSettings);
         menu.addSeparator();
@@ -181,19 +212,21 @@ public class SystemTrayMenu {
         MenuItem manageScenes = new MenuItem("Manage Scenes");
         manageScenes.addActionListener((ActionEvent evv) -> {
             JFrame manageFrame = new JFrame("Manage Scenes");
+            manageFrame.setSize(500, 300);
             JPanel managePanel = new JPanel();
-            manageFrame.setSize(500, 500);
+            BoxLayout layout = new BoxLayout(managePanel, BoxLayout.Y_AXIS);
+            managePanel.setLayout(layout);
             managePanel.setBackground(Color.WHITE);
             
             manageFrame.setResizable(true);
             manageFrame.setLocationRelativeTo(null);
             
-            JLabel titleLabel = new JLabel("Select the scene(s) you wish to delete then click OK");
+            JLabel titleLabel = new JLabel("    Select the scene(s) you wish to delete then click OK    ");
+            titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
             managePanel.add(titleLabel);
             
             //Panel that loads each scene name and allows it to be deleted
             JPanel scenePanel = new JPanel(new WrapLayout());
-            scenePanel.setSize(500, 500);
             scenePanel.setBackground(Color.WHITE);
             ArrayList<HueScene> deletedScenes = new ArrayList<HueScene>();
             for(int i = 0; i < sceneList.size(); i++){
@@ -253,6 +286,7 @@ public class SystemTrayMenu {
             managePanel.add(scenePanel);
             managePanel.add(buttonPanel);
             manageFrame.add(managePanel);
+            manageFrame.pack();
             manageFrame.show();
         });
         menu.add(manageScenes);
