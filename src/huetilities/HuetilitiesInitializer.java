@@ -35,18 +35,29 @@ import com.philips.lighting.model.PHHueError;
 import com.philips.lighting.model.PHHueParsingError;
 import com.philips.lighting.model.PHLight;
 import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.SystemTray;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 import javax.imageio.ImageIO;
+import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.plaf.basic.BasicProgressBarUI;
 
 // Initializes the SDK and neccesary components for controlling the HUE lights and connects
 // to a bridge if a bridge connection is not yet found
@@ -74,8 +85,9 @@ public final class HuetilitiesInitializer {
         //Open connection GUI
         } else {
             connectionFrame = new JFrame("Huetiltiies");
-            connectionFrame.setSize(500, 300);
+            connectionFrame.setSize(500, 250);
             connectionPanel = new JPanel();
+            connectionFrame.setLocationRelativeTo(null);
             connectionPanel.setBackground(Color.WHITE);
             
             //Main logo
@@ -86,16 +98,30 @@ public final class HuetilitiesInitializer {
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
-            movieImage = movieImage.getScaledInstance(250, 200, Image.SCALE_SMOOTH);
+            movieImage = movieImage.getScaledInstance(200, 200, Image.SCALE_SMOOTH);
             ImageIcon movieIcon = new ImageIcon(movieImage);
             movieHueLogo.setIcon(movieIcon);
             connectionPanel.add(movieHueLogo);
             
+            JPanel textPanel = new JPanel();
+            BoxLayout layout = new BoxLayout(textPanel, BoxLayout.Y_AXIS);
+            textPanel.setLayout(layout);
+            textPanel.setBackground(Color.WHITE);
+            
+            JLabel welcomeLabel = new JLabel("Huetilities Initial Setup");
+            welcomeLabel.setFont(new Font("Helvetica", Font.BOLD, 20));
+            textPanel.add(welcomeLabel);
+            
             JLabel connectionLabel = new JLabel("Push the button on your HUE bridge now");
-            connectionPanel.add(connectionLabel);
+            connectionLabel.setFont(new Font("Helvetica", Font.PLAIN, 12));
+            textPanel.add(connectionLabel);
+
+            connectionPanel.add(textPanel);
             
             JProgressBar progressBar = new JProgressBar();
             progressBar.setIndeterminate(true);
+            progressBar.setUI(new MyProgressUI());
+            progressBar.setPreferredSize(new Dimension(450, 5));
             connectionPanel.add(progressBar);
             
             findBridges();
@@ -209,4 +235,38 @@ public final class HuetilitiesInitializer {
         return listener;
     } 
     
+}
+
+class MyProgressUI extends BasicProgressBarUI {
+    Rectangle r = new Rectangle();
+    int colorBar = 0;
+    
+    public MyProgressUI(){
+        Timer t = new Timer();
+        t.schedule(new TimerTask() {
+            @Override
+            public void run() {
+               colorBar++;
+               if(colorBar == 6){
+                   colorBar = 0;
+               }
+            }
+        }, 0, 1000);
+    }
+    
+    @Override
+    protected void paintIndeterminate(Graphics g, JComponent c) {
+        Graphics2D g2d = (Graphics2D) g;
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        r = getBox(r);
+        if(colorBar == 0){ g.setColor(Color.RED);}
+        else if (colorBar == 1){ g.setColor(Color.YELLOW);}
+        else if (colorBar == 2){ g.setColor(Color.BLUE);}
+        else if (colorBar == 3){ g.setColor(Color.ORANGE);}
+        else if (colorBar == 4){ g.setColor(Color.CYAN);}
+        else if (colorBar == 5){ g.setColor(Color.RED);}
+        g.fillRect(r.x, r.y, 450, 5);
+    }
+    
+   
 }

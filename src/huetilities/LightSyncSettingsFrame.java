@@ -64,7 +64,7 @@ public class LightSyncSettingsFrame {
         this.sdk = sdk;
         
         frame = new JFrame("Light Sync Settings");
-        //frame.setSize(500, 300);
+        frame.setSize(500, 400);
 	frame.setResizable(true);
         frame.setLocationRelativeTo(null);
         
@@ -73,20 +73,38 @@ public class LightSyncSettingsFrame {
         GridBagConstraints c = new GridBagConstraints();
         c.fill = GridBagConstraints.VERTICAL;
         
-        //Add vibrant setting
-        JLabel vibrantLabel = new JLabel("     Color Saturation     ");
+        //Add header label
+        JLabel headerLabel = new JLabel("Light Sync Settings");
+        headerLabel.setFont(new Font("Helvetica", Font.BOLD, 20));
         c.gridx = 0;
-        c.gridy = 3;
+        c.gridy = 0;
+        c.anchor = FIRST_LINE_START;
+        panel.add(headerLabel, c);
+
+        JPanel blankPanel = new JPanel();
+        blankPanel.setBackground(Color.WHITE);
+        c.gridx = 0;
+        c.gridy = 1;
+        panel.add(blankPanel, c);
+        
+        //Add vibrant setting
+        JLabel vibrantLabel = new JLabel("Color Saturation");
+        vibrantLabel.setFont(new Font("Helvetica", Font.BOLD, 14));
+        c.gridx = 0;
+        c.gridy = 2;
         c.anchor = FIRST_LINE_START;
         panel.add(vibrantLabel, c);
 
-        JLabel vibrantDesc = new JLabel("     Colors can appear more realistically or enhanced to be more vibrant     ");
+        JLabel vibrantDesc = new JLabel("Colors can appear more realistically or enhanced to be more vibrant");
+        vibrantDesc.setFont(new Font("Helvetica", Font.PLAIN, 14));
         c.gridx = 0;
-        c.gridy = 4;
+        c.gridy = 3;
         panel.add(vibrantDesc, c);
         
         JToggleButton vibrantButton = new JToggleButton("Vibrant");
+        vibrantButton.setFont(new Font("Helvetica", Font.PLAIN, 14));
         JToggleButton realisticButton = new JToggleButton("Realistic");
+        realisticButton.setFont(new Font("Helvetica", Font.PLAIN, 14));
         ButtonGroup vibrantGroup = new ButtonGroup();
         vibrantGroup.add(vibrantButton);
         vibrantGroup.add(realisticButton);
@@ -96,11 +114,12 @@ public class LightSyncSettingsFrame {
         vibrantButtonPanel.add(vibrantButton);
         vibrantButtonPanel.add(realisticButton);
         c.gridx = 0;
-        c.gridy = 5;
+        c.gridy = 4;
         panel.add(vibrantButtonPanel, c);
         
         //Add light selection
-        JLabel lightLabel = new JLabel("     Select how you want your lights to display color     ");
+        JLabel lightLabel = new JLabel("Select how you want your lights to display color");
+        lightLabel.setFont(new Font("Helvetica", Font.BOLD, 14));
         c.gridx = 0;
         c.gridy = 9;
         panel.add(lightLabel, c);
@@ -136,12 +155,16 @@ public class LightSyncSettingsFrame {
             String lightName = lights.get(i).getName();
             PHLight light = lights.get(i);  
             JLabel thisLightLabel = new JLabel(lightName);
+            thisLightLabel.setFont(new Font("Helvetica", Font.PLAIN, 14));
             thisLightPanel.add(thisLightLabel);
             thisLightPanel.setBackground(Color.WHITE);
             
             JToggleButton offButton = new JToggleButton("Off");
+            offButton.setFont(new Font("Helvetica", Font.PLAIN, 14));
             JToggleButton primaryButton = new JToggleButton("Primary");
+            primaryButton.setFont(new Font("Helvetica", Font.PLAIN, 14));
             JToggleButton accentButton = new JToggleButton("Accent");
+            accentButton.setFont(new Font("Helvetica", Font.PLAIN, 14));
             ButtonGroup lightSettingGroup = new ButtonGroup();
             lightSettingGroup.add(offButton);
             lightSettingGroup.add(primaryButton);
@@ -195,11 +218,11 @@ public class LightSyncSettingsFrame {
         
         //Add blank/buffer space
         for(int i = 0; i < 4; i++){
-            JPanel blankPanel = new JPanel();
-            blankPanel.setBackground(Color.WHITE);
+            JPanel blankPanel3 = new JPanel();
+            blankPanel3.setBackground(Color.WHITE);
             c.gridx = 0;
             c.gridy = 10 + i;
-            panel.add(blankPanel, c);
+            panel.add(blankPanel3, c);
         }
         
         //Add save, cancel, reset to defaults panel
@@ -207,7 +230,7 @@ public class LightSyncSettingsFrame {
         savePanel.setBackground(Color.WHITE);
         
         JButton saveButton = new JButton("Save");
-        saveButton.setFont(new Font("MyriadProReg", Font.PLAIN, 14));
+        saveButton.setFont(new Font("Helvetica", Font.PLAIN, 14));
         savePanel.add(saveButton);
         saveButton.addActionListener((ActionEvent e) -> {
             //Add listeners for remaining events
@@ -228,7 +251,7 @@ public class LightSyncSettingsFrame {
         });
         
         JButton cancelButton = new JButton("Cancel");
-        cancelButton.setFont(new Font("MyriadProReg", Font.PLAIN, 14));
+        cancelButton.setFont(new Font("Helvetica", Font.PLAIN, 14));
         savePanel.add(cancelButton);
         cancelButton.addActionListener((ActionEvent e) -> {
             LightSyncSettings.loadSettings(sdk);
@@ -246,7 +269,7 @@ public class LightSyncSettingsFrame {
         });
         
         JButton resetDefaultsButton = new JButton("Reset to Defaults");
-        resetDefaultsButton.setFont(new Font("MyriadProReg", Font.PLAIN, 14));
+        resetDefaultsButton.setFont(new Font("Helvetica", Font.PLAIN, 14));
         savePanel.add(resetDefaultsButton);
         resetDefaultsButton.addActionListener((ActionEvent e) -> {
             List<PHLight> allLights = cache.getAllLights();
@@ -263,7 +286,6 @@ public class LightSyncSettingsFrame {
         panel.add(savePanel, c);
         
         frame.add(panel);
-        frame.pack();
         frame.show();
         //Resume lights with new settings after user clicks "Save" or "Cancel"
         //lc.start();

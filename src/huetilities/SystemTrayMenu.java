@@ -34,6 +34,7 @@ import java.awt.AWTException;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.Image;
 import java.awt.MenuItem;
 import java.awt.PopupMenu;
@@ -127,7 +128,7 @@ public class SystemTrayMenu {
         
         MenuItem changeLights = new MenuItem("Change Lights Color/Brightness");
         changeLights.addActionListener((ActionEvent e) -> {
-            LightSettings ls = new LightSettings();
+            LightSettings ls = new LightSettings(sdk);
         });
         menu.add(changeLights);
         
@@ -221,7 +222,16 @@ public class SystemTrayMenu {
             manageFrame.setResizable(true);
             manageFrame.setLocationRelativeTo(null);
             
-            JLabel titleLabel = new JLabel("    Select the scene(s) you wish to delete then click OK    ");
+            JLabel blankLabel = new JLabel("");
+            managePanel.add(blankLabel);
+            
+            JLabel mainTitle = new JLabel("Manage Scenes");
+            mainTitle.setFont(new Font("Helvetica", Font.BOLD, 20));
+            mainTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
+            managePanel.add(mainTitle);
+            
+            JLabel titleLabel = new JLabel("     Select the scene(s) you wish to delete then click OK    ");
+            titleLabel.setFont(new Font("Helvetica", Font.PLAIN, 14));
             titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
             managePanel.add(titleLabel);
             
@@ -233,6 +243,7 @@ public class SystemTrayMenu {
                 String sceneName = sceneList.get(i).getName();
                 HueScene thisScene = sceneList.get(i);
                 JToggleButton lightButton = new JToggleButton(sceneName, false);
+                lightButton.setFont(new Font("Helvetica", Font.PLAIN, 14));
                 Image lightImage = null;
                 try {
                     lightImage = ImageIO.read(getClass().getResource("LightOutline.png"));
@@ -255,6 +266,7 @@ public class SystemTrayMenu {
             JPanel buttonPanel = new JPanel();
             buttonPanel.setBackground(Color.WHITE);
             JButton okButton = new JButton("OK");
+            okButton.setFont(new Font("Helvetica", Font.PLAIN, 14));
             okButton.addActionListener((ActionEvent e) -> {
                 for(int i = 0; i < deletedScenes.size(); i++){
                     LoadScenes.deleteScene(deletedScenes.get(i));
@@ -276,6 +288,7 @@ public class SystemTrayMenu {
             });
             buttonPanel.add(okButton);
             JButton cancelButton = new JButton("Cancel");
+            cancelButton.setFont(new Font("Helvetica", Font.PLAIN, 14));
             cancelButton.addActionListener((ActionEvent e) -> {
                 manageFrame.dispatchEvent(new WindowEvent(manageFrame, WindowEvent.WINDOW_CLOSING));
             });
