@@ -25,22 +25,20 @@ package huetilities;
 
 import com.philips.lighting.hue.sdk.PHHueSDK;
 import com.philips.lighting.model.PHBridge;
-import com.philips.lighting.model.PHBridgeResourcesCache;
 import com.philips.lighting.model.PHLight;
 import com.philips.lighting.model.PHLightState;
+
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.Image;
 import java.awt.event.ActionEvent;
+import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.IOException;
-import java.util.List;
-import javax.imageio.ImageIO;
-import javax.swing.BoxLayout;
-import javax.swing.ImageIcon;
+
+import java.util.Timer;
+import java.util.TimerTask;
 import javax.swing.JButton;
+
 import javax.swing.JColorChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -57,148 +55,118 @@ public class LightSettings {
     
     JFrame frame;
     JPanel panel;
+    Timer timer;
+    Color chosenColor;
+    Color lastColor;
+    boolean startChanging = false;
     
-    public LightSettings(PHHueSDK sdk){
-        frame = new JFrame("Light Settings");
-        frame.setSize(500, 200);
-        frame.setResizable(true);
-        panel = new JPanel();
-        BoxLayout layout = new BoxLayout(panel, BoxLayout.Y_AXIS);
-        panel.setLayout(layout);
-        panel.setBackground(Color.WHITE);
-        
-        JLabel titleLabel = new JLabel("Light Settings");
-        titleLabel.setFont(new Font("Helvetica", Font.BOLD, 20));
-        titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        panel.add(titleLabel);
-        
-        JLabel infoLabel = new JLabel("Click a light to change color/brightness");
-        infoLabel.setFont(new Font("Helvetica", Font.PLAIN, 14));
-        infoLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        panel.add(infoLabel);
+    public LightSettings(PHHueSDK sdk, PHLight light){
+        //Create a custom frame for managing this light
+        JFrame lightFrame = new JFrame();
+        lightFrame.setSize(700, 500);
+        lightFrame.setLocationRelativeTo(null);
+        lightFrame.setResizable(true);
+        JPanel lightPanel = new JPanel();
+        lightPanel.setBackground(Color.WHITE);
         
         PHBridge bridge = sdk.getSelectedBridge();
-        PHBridgeResourcesCache cache = bridge.getResourceCache();
-        List<PHLight> lights = cache.getAllLights();
+        timer = new Timer();
+
+        JLabel lightTitle = new JLabel();
+        lightTitle.setText(light.getName());
+        lightTitle.setFont(new Font("Helvetica", Font.BOLD, 20));
+        lightPanel.add(lightTitle);
+
+        JLabel brightnessTitle = new JLabel("Brightness");
+        brightnessTitle.setFont(new Font("Helvetica", Font.BOLD, 14));
+        lightPanel.add(brightnessTitle);
+
+        PHLightState lightState = light.getLastKnownLightState();
+        int brightness = lightState.getBrightness();
+        double brightnessPercentage = (((double)(brightness)/(double)254) * 100.0);
+        String brightnessDisplay = Integer.toString((int)brightnessPercentage);
+
+        JLabel brightnessLabel = new JLabel();
+        brightnessLabel.setText(brightnessDisplay);
+        brightnessLabel.setFont(new Font("Helvetica", Font.PLAIN, 14));
+        lightPanel.add(brightnessLabel);
         
-        JPanel lightsPanel = new JPanel(new WrapLayout());
-        lightsPanel.setBackground(Color.WHITE);
-        for(int i = 0; i < lights.size(); i++){
-            String lightName = lights.get(i).getName();
-            PHLight thisLight = lights.get(i);
-            JButton lightButton = new JButton(lightName);
-            lightButton.setFont(new Font("Helvetica", Font.PLAIN, 14));
-            Image lightImage = null;
-            try {
-                lightImage = ImageIO.read(getClass().getResource("LightOutline.png"));
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
-            lightImage = lightImage.getScaledInstance(40, 40, Image.SCALE_SMOOTH);
-            ImageIcon lightIcon = new ImageIcon(lightImage);
-            lightButton.setIcon(lightIcon);
-            lightButton.addActionListener((ActionEvent e) -> {
-                //Create a custom frame for managing this light
-                JFrame lightFrame = new JFrame();
-                lightFrame.setSize(600, 500);
-                lightFrame.setLocationRelativeTo(null);
-                lightFrame.setResizable(true);
-                JPanel lightPanel = new JPanel();
-                lightPanel.setBackground(Color.WHITE);
-                
-                JLabel lightTitle = new JLabel();
-                lightTitle.setText(lightName);
-                lightTitle.setFont(new Font("Helvetica", Font.BOLD, 20));
-                lightPanel.add(lightTitle);
-                
-                JLabel brightnessTitle = new JLabel("Brightness");
-                brightnessTitle.setFont(new Font("Helvetica", Font.BOLD, 14));
-                lightPanel.add(brightnessTitle);
-                
-                PHLightState lightState = thisLight.getLastKnownLightState();
-                int brightness = lightState.getBrightness();
-                
-                JLabel brightnessLabel = new JLabel();
-                brightnessLabel.setText(Integer.toString(brightness));
-                brightnessLabel.setFont(new Font("Helvetica", Font.PLAIN, 14));
-                lightPanel.add(brightnessLabel);
-                
-                JSlider slider = new JSlider(0, 254, brightness);
-                slider.addChangeListener((ChangeEvent event) -> {
-                    lightState.setBrightness(slider.getValue());
-                    bridge.updateLightState(thisLight, lightState);
-                    brightnessLabel.setText(Integer.toString(slider.getValue()));
-                });
-                lightPanel.add(slider);
-                
-                //Color currentLightColor = convertToColor(lightState.getX(), lightState.getY(), brightness);
-                
-                JColorChooser colorChooser = new JColorChooser(Color.RED);
-                colorChooser.setBackground(Color.WHITE);
-                colorChooser.setPreferredSize(new Dimension(500, 400));
-                colorChooser.setFont(new Font("Helvetica", Font.PLAIN, 14));
- 
-                ColorSelectionModel model = colorChooser.getSelectionModel();
-                ChangeListener changeListener = (ChangeEvent changeEvent) -> {
-                    Color newForegroundColor = colorChooser.getColor();
-                    lightState.setX(getX(newForegroundColor));
-                    lightState.setY(getY(newForegroundColor));
-                    bridge.updateLightState(thisLight, lightState);
-                };
-                model.addChangeListener(changeListener);
-                lightPanel.add(colorChooser);
-                
-                lightFrame.add(lightPanel);
-                lightFrame.show();
-            });
-            lightsPanel.add(lightButton);
-        }
-        panel.add(lightsPanel);
-        
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.setBackground(Color.WHITE);
-        JButton exitButton = new JButton("Close");
-        exitButton.setFont(new Font("Helvetica", Font.PLAIN, 14));
-        exitButton.addActionListener((ActionEvent e) -> {
-            frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
+        //Set brightness slider
+        JSlider slider = new JSlider(0, 254, brightness);
+        slider.addChangeListener((ChangeEvent event) -> {
+            lightState.setBrightness(slider.getValue());
+            bridge.updateLightState(light, lightState);
+            int currentBrightness = slider.getValue();
+            double currentBrightnessPercentage = (((double)(currentBrightness)/(double)254) * 100.0);
+            String brightnessToDisplay = Integer.toString((int)currentBrightnessPercentage);
+            brightnessLabel.setText(brightnessToDisplay);
         });
-        buttonPanel.add(exitButton);
-        panel.add(buttonPanel);
+        lightPanel.add(slider);
         
-        /*JColorChooser colorChooser = new JColorChooser(panel.getBackground());
+        //Add color chooser
+        JColorChooser colorChooser = new JColorChooser(Color.RED);
+        colorChooser.setBackground(Color.WHITE);
+        JPanel blankPanel = new JPanel();
+        blankPanel.setBackground(Color.WHITE);
+        colorChooser.setPreviewPanel(blankPanel);
+        colorChooser.setPreferredSize(new Dimension(700, 400));
+        colorChooser.setFont(new Font("Helvetica", Font.PLAIN, 14));
+        AbstractColorChooserPanel[] panels = colorChooser.getChooserPanels();
+        for (AbstractColorChooserPanel accp : panels) {
+           if(accp.getDisplayName().equals("HSB") || accp.getDisplayName().equals("CMYK") || accp.getDisplayName().equals("HSL")) {
+              colorChooser.removeChooserPanel(accp);
+           } 
+        }
         
+        //If the color has changed from last time it checked, update color
+        //Checks for new color every 200ms
+        class UpdateColor extends TimerTask {
+            @Override
+            public void run() {
+               if(chosenColor != lastColor){
+                  lightState.setX(getX(chosenColor));
+                  lightState.setY(getY(chosenColor));
+                  bridge.updateLightState(light, lightState); 
+                  lastColor = chosenColor;
+               } 
+            }
+        }
+        
+        //Listen for color changes and schedule the timer to listen for color changes
+        //after the user first starts changing color until timer is cancelled on window closing
         ColorSelectionModel model = colorChooser.getSelectionModel();
-        ChangeListener changeListener = new ChangeListener() {
-          public void stateChanged(ChangeEvent changeEvent) {
-            Color newForegroundColor = colorChooser.getColor();
-            System.out.println(newForegroundColor);
-          }
+        ChangeListener changeListener = (ChangeEvent changeEvent) -> {
+            Color newColor = colorChooser.getColor();
+            chosenColor = newColor;
+            if(!startChanging){
+                timer.schedule(new UpdateColor(), 0, 200);
+                startChanging = true;
+            }
         };
+
         model.addChangeListener(changeListener);
-        panel.add(colorChooser);*/
+        lightPanel.add(colorChooser);
         
-        frame.add(panel);
-        frame.show();
+        JButton closeButton = new JButton("Close");
+        closeButton.setFont(new Font("Helvetica", Font.PLAIN, 14));
+        lightPanel.add(closeButton);
+        closeButton.addActionListener((ActionEvent e) -> {
+            lightFrame.dispatchEvent(new WindowEvent(lightFrame, WindowEvent.WINDOW_CLOSING));
+        });
+
+        lightFrame.add(lightPanel);
+        lightFrame.show();
+        
+        //Cancel timer upon window close
+        lightFrame.addWindowListener(new WindowAdapter(){
+            @Override
+            public void windowClosing(WindowEvent e){
+                timer.cancel();
+            }
+        });
     }
-    
-    public Color convertToColor(float x, float y, int brightness){
-        float z = (float)1.0 - x - y; 
-        float Y = brightness;
-        float X = (Y / y) * x;  
-        float Z = (Y / y) * z;
-        
-        float r = X * (float)1.612 - Y * (float)0.203 - Z * (float)0.302;
-        float g = -X * (float)0.509 + Y * (float)1.412 + Z * (float)0.066;
-        float b = X * (float)0.026 - Y * (float)0.072 + Z * (float)0.962;
-        
-        r = (float) (r <= 0.0031308f ? 12.92f * r : (1.0f + 0.055f) * Math.pow(r, (1.0f / 2.4f)) - 0.055f);
-        g = (float) (g <= 0.0031308f ? 12.92f * g : (1.0f + 0.055f) * Math.pow(g, (1.0f / 2.4f)) - 0.055f);
-        b = (float) (b <= 0.0031308f ? 12.92f * b : (1.0f + 0.055f) * Math.pow(b, (1.0f / 2.4f)) - 0.055f);
-        
-        Color color = new Color(r, g, b);
-        return color;
-    }
-    
+   
+    //Get x and y values for RGB color
     public float getX(Color c){
         float red = (float) ((c.getRed() > 0.04045f) ? Math.pow((c.getRed() + 0.055f) / (1.0f + 0.055f), 2.4f) : (c.getRed() / 12.92f));
         float green = (float) ((c.getGreen() > 0.04045f) ? Math.pow((c.getGreen() + 0.055f) / (1.0f + 0.055f), 2.4f) : (c.getGreen() / 12.92f));
@@ -226,5 +194,4 @@ public class LightSettings {
         
         return y;
     }
-    
 }

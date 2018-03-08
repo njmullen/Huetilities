@@ -62,6 +62,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.JToggleButton;
+import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
 
 public class SystemTrayMenu {
     
@@ -78,6 +80,9 @@ public class SystemTrayMenu {
     List<PHLight> primaryLights;
     List<PHLight> accentLights;
     boolean vibrant;
+    
+    boolean showLabels;
+    boolean showRandom;
     
     public SystemTrayMenu(PHHueSDK thisSDK){
         this.sdk = thisSDK;
@@ -100,37 +105,60 @@ public class SystemTrayMenu {
         } catch (AWTException ex) {
             System.err.println("Tray problem");
         }
+        
+        //Load general settings
+        GeneralSettings.loadSettings();
+        showLabels = GeneralSettings.showLabels;
+        showRandom = GeneralSettings.showRandom;
+        
+        MenuItem lightsLabel1 = new MenuItem("Lights");
+        lightsLabel1.setEnabled(false);
+        menu.add(lightsLabel1);
 
-        MenuItem lightsLabel = new MenuItem("Click each light to turn on/off");
-        lightsLabel.setEnabled(false);
-        menu.add(lightsLabel);
-       
         //Add submenu for each light
         PHBridge bridge = sdk.getSelectedBridge();
         PHBridgeResourcesCache cache = bridge.getResourceCache();
         List<PHLight> lights = cache.getAllLights();
         for(int i = 0; i < lights.size(); i++){
-            MenuItem lightLabel = new MenuItem(lights.get(i).getName());
             PHLight light = lights.get(i);
             PHLightState lightState = light.getLastKnownLightState();
-            lightLabel.addActionListener((ActionEvent e) -> {
-                if(lightState.isOn()){
-                    lightState.setOn(false);
-                    bridge.updateLightState(light, lightState);
+
+            PopupMenu lightMenu = new PopupMenu(light.getName());
+            lightMenu.addActionListener((ActionEvent ev) -> {
+                System.out.println(ev.getModifiers());
+            });
+            MenuItem toggleLight = new MenuItem();
+            
+            toggleLight.setLabel(light.getName());
+
+            toggleLight.addActionListener((ActionEvent ev) -> {
+                //If option-click
+                if(ev.getModifiers() == 8){
+                    if(lightState.isOn()){
+                        lightState.setOn(false);
+                        bridge.updateLightState(light, lightState);
+                    } else {
+                        lightState.setOn(true);
+                        bridge.updateLightState(light, lightState);
+                    }   
                 } else {
-                    lightState.setOn(true);
-                    bridge.updateLightState(light, lightState);
+                    LightSettings ls = new LightSettings(sdk, light);
                 }
             });
-            menu.add(lightLabel);
+
+            menu.add(toggleLight);
         }
-        menu.addSeparator();
         
-        MenuItem changeLights = new MenuItem("Change Lights Color/Brightness");
-        changeLights.addActionListener((ActionEvent e) -> {
-            LightSettings ls = new LightSettings(sdk);
-        });
-        menu.add(changeLights);
+        if(showLabels){
+            MenuItem lightsLabel = new MenuItem("Click to change color/brightness");
+            lightsLabel.setEnabled(false);
+            menu.add(lightsLabel);
+
+            MenuItem lightsLabel2 = new MenuItem("Option + Click to turn on/off");
+            lightsLabel2.setEnabled(false);
+            menu.add(lightsLabel2); 
+        }
+        
         
         menu.addSeparator();
 
@@ -202,12 +230,14 @@ public class SystemTrayMenu {
             }
         });
         menu.add(saveScene);
-                
-        MenuItem randomLights = new MenuItem("Random Scene");
-        randomLights.addActionListener((ActionEvent e) -> {
-            RandomLights rl = new RandomLights(sdk);
-        });
-        menu.add(randomLights);
+        
+        if(showRandom){
+            MenuItem randomLights = new MenuItem("Random Scene");
+            randomLights.addActionListener((ActionEvent e) -> {
+                RandomLights rl = new RandomLights(sdk);
+            });
+            menu.add(randomLights);
+        }
         
         //Manages the scenes
         MenuItem manageScenes = new MenuItem("Manage Scenes");
@@ -295,7 +325,6 @@ public class SystemTrayMenu {
             buttonPanel.add(okButton);
             buttonPanel.add(cancelButton);
             
-            
             managePanel.add(scenePanel);
             managePanel.add(buttonPanel);
             manageFrame.add(managePanel);
@@ -323,7 +352,7 @@ public class SystemTrayMenu {
          
         settings = new MenuItem("Settings");
         settings.addActionListener((ActionEvent e) -> {
-            //
+            GeneralSettingsFrame gsFrame = new GeneralSettingsFrame();
         });
         menu.add(settings);
         
