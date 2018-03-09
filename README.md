@@ -6,6 +6,8 @@ Control your Phillips HUE lights right from the menu bar: turn lights on/off, ch
 ### LightSync
 Sync your HUE lights with the color of your display. Perfect for showing photos, watching movies, and settings the ambience. LightSync grabs the color average of the pixels on your display and sets your lights to that color. Control which lights are apart of the show, and set primary and accent colors. 
 
+<img src="https://github.com/njmullen/Huetilities/blob/master/img/LightSyncSettings.png" width="522" height="422">
+
 ### Control your Lights
 Turn your lights on and off, set the brightness, and choose a color all with a few simple clicks. Huetilites features your lights settings right at the top of the menu, and they can be adjusted quickly.
 
