@@ -84,7 +84,7 @@ public final class HuetilitiesInitializer {
             //Add light controller initialization and open app
         //Open connection GUI
         } else {
-            connectionFrame = new JFrame("Huetiltiies");
+            connectionFrame = new JFrame("Huetilties");
             connectionFrame.setSize(500, 250);
             connectionPanel = new JPanel();
             connectionFrame.setLocationRelativeTo(null);
