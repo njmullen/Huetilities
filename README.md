@@ -1,6 +1,14 @@
 # Huetilities
 Control your Phillips HUE lights right from the menu bar: turn lights on/off, change color and brightness, set and save scenes, and sync your lights with the color on your display
 
+### [Download](#download-and-compatibility)
+
+- [Features](#features)
+
+- [Setup](#setup)
+
+- [Troubleshooting](#troubleshooting)
+
 ## Features
 
 ### LightSync
@@ -11,13 +19,19 @@ Sync your HUE lights with the color of your display. Perfect for showing photos,
 ### Control your Lights
 Turn your lights on and off, set the brightness, and choose a color all with a few simple clicks. Huetilites features your lights settings right at the top of the menu, and they can be adjusted quickly.
 
+<img src="https://github.com/njmullen/Huetilities/blob/master/img/FullMenu.png" width="316" height="354">
+
 ### Manage Scenes
 Save and manage your favorite scenes with just a few clicks. You can also let Huetilities do the work of finding scenes with the Random Scene funcitonality.
+
+<img src="https://github.com/njmullen/Huetilities/blob/master/img/ScenesMenu.png" width="390" height="153">
 
 ## Setup
 Huetilties only needs to be setup once and then it launches and is ready to go with just a click. When you first run Huetilities, it will begin the setup procedure which is as simple as pressing the button on your HUE bridge to give Huetilities permission to control your lights.
 
-## Download & Compatibility
+<img src="https://github.com/njmullen/Huetilities/blob/master/img/SetupScreen.png" width="543" height="275">
+
+## Download and Compatibility
 Huetilities is compatiable with macOS 10.8 and higher
 
 ## Troubleshooting
