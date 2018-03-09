@@ -34,6 +34,8 @@ Huetilties only needs to be setup once and then it launches and is ready to go w
 ## Download and Compatibility
 Huetilities is compatiable with macOS 10.8 and higher
 
+Download (beta) [here](http://njmullen.com/Huetilities.app.zip) from my website. Clicking this link will automatically download the application.
+
 ## Troubleshooting
 There are two known issues with the current release (beta): when you delete a scene with the Manage Scenes tool, the scene is not deleted until the application is relaunched, and when you toggle either the Random Scenes or Option+Click labels on (after they were already off), they won't reappear until relaunch.
 
