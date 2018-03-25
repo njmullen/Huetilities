@@ -29,7 +29,7 @@ Save and manage your favorite scenes with just a few clicks. You can also let Hu
 ## Setup
 Huetilties only needs to be setup once and then it launches and is ready to go with just a click. When you first run Huetilities, it will begin the setup procedure which is as simple as pressing the button on your HUE bridge to give Huetilities permission to control your lights.
 
-<img src="https://github.com/njmullen/Huetilities/blob/master/img/SetupScreen.png" width="543" height="275">
+<img src="https://github.com/njmullen/Huetilities/blob/master/img/Setup.png" width="519" height="268">
 
 ## Download and Compatibility
 Huetilities is compatiable with macOS 10.8 and higher
